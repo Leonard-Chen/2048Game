@@ -43,6 +43,11 @@ namespace CSharp_Projects
 			Column = column;
 		}
 
+		/// <summary>
+		/// 根据数字大小调整字体大小，避免出现数字显示问题
+		/// </summary>
+		/// <param name="number">方块中的数字</param>
+		/// <returns></returns>
 		private float GetFontSize(int number) => number switch
 		{
 			< 128 => 16.2F,
@@ -50,6 +55,11 @@ namespace CSharp_Projects
 			>= 1024 => 9F,
 		};
 
+		/// <summary>
+		/// 渲染方块
+		/// </summary>
+		/// <param name="number">方块中的数字</param>
+		/// <returns>渲染后得到的Label控件</returns>
 		private Label RenderTile(int number)
 		{
 			Label tile = new();
@@ -65,6 +75,9 @@ namespace CSharp_Projects
 			return tile;
 		}
 
+		/// <summary>
+		/// 渲染棋盘
+		/// </summary>
 		private void RenderGrid()
 		{
 			splitContainer1.Panel2.Controls.Remove(gridPanel);
@@ -98,6 +111,9 @@ namespace CSharp_Projects
 			AlignGridToCenter();
 		}
 
+		/// <summary>
+		/// 棋盘居中
+		/// </summary>
 		private void AlignGridToCenter()
 		{
 			var panelSize = splitContainer1.Panel2.ClientSize;
@@ -110,6 +126,9 @@ namespace CSharp_Projects
 			};
 		}
 
+		/// <summary>
+		/// 更新最高分
+		/// </summary>
 		private void UpdateScore()
 		{
 			if (game is not null)

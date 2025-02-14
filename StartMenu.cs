@@ -30,6 +30,9 @@ namespace CSharp_Projects
 				BestScore = reader.ReadInt32();
 		}
 
+		/// <summary>
+		/// 将最高分写入到本地文件中
+		/// </summary>
 		private void SaveBestScore()
 		{
 			using FileStream stream = File.Open(filePath, FileMode.Open);

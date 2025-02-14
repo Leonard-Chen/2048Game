@@ -22,6 +22,10 @@ namespace CSharp_Projects
 			}
 		}
 
+		/// <summary>
+		/// 获取正在运行的进程实例，防止程序被重复打开
+		/// </summary>
+		/// <returns>若程序已经在运行，则返回对该进程的引用，否则返回null</returns>
 		static Process? GetRunningInstance()
 		{
 			Process currentProcess = Process.GetCurrentProcess();
@@ -34,6 +38,10 @@ namespace CSharp_Projects
 			return null;
 		}
 
+		/// <summary>
+		/// 若程序已被打开，将窗口展示在最前端
+		/// </summary>
+		/// <param name="instance">当前进程实例</param>
 		static void HandleRunningInstance(Process instance)
 		{
 			ShowWindowAsync(instance.MainWindowHandle, 1);
