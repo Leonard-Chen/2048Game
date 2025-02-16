@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -28,17 +29,23 @@ namespace CSharp_Projects
 			[2048] = Color.FromArgb(237, 193, 46)
 		};
 
-		private Game? game;
 		public Action<int>? updateBestScoreHandler;
+		public Action<Game?>? saveGameHandler;
+		public Game Game { get; }
 		public int Row { get; }
 		public int Column { get; }
 		public int BestScore { get; set; }
+
+		public GameUI(Game game) : this(game.Row, game.Column)
+		{
+			Game = new(game);
+		}
 
 		public GameUI(int row, int column)
 		{
 			InitializeComponent();
 			Size = new(100 + column * 75, 183 + row * 75);
-			game = new(row, column);
+			Game = new(row, column);
 			Row = row;
 			Column = column;
 		}
@@ -97,11 +104,11 @@ namespace CSharp_Projects
 
 			gridPanel.Size = new(75 * Column, 75 * Row);
 
-			if (game is not null)
+			if (Game is not null)
 			{
-				foreach ((int row, int col) in game.Grid.FindSpaces())
+				foreach ((int row, int col) in Game.Grid.FindSpaces())
 				{
-					Tile tile = game.Grid[row, col];
+					Tile tile = Game.Grid[row, col];
 					Label label = RenderTile(tile);
 					gridPanel.Controls.Add(label, col, row);
 				}
@@ -127,30 +134,37 @@ namespace CSharp_Projects
 		}
 
 		/// <summary>
-		/// 更新最高分
+		/// 更新游戏当前分数、最高分
 		/// </summary>
 		private void UpdateScore()
 		{
-			if (game is not null)
+			if (Game is not null)
 			{
-				BestScore = Math.Max(BestScore, game.Score);
-				scoreLabel.Text = $"{game.Score}";
+				BestScore = Math.Max(BestScore, Game.Score);
+				scoreLabel.Text = $"{Game.Score}";
 				bestScoreLabel.Text = $"{BestScore}";
 			}
+
+			if (updateBestScoreHandler is not null)
+				updateBestScoreHandler(BestScore);
 		}
 
 		private void GameUI_KeyDown(object sender, KeyEventArgs e)
 		{
-			if (game is not null)
+			if (Game is not null)
 			{
-				game.Swipe(e.KeyCode);
+				Game.Swipe(e.KeyCode);
 				RenderGrid();
 				UpdateScore();
 
-				if (game.IsOver(out bool complete))
+				if (Game.IsOver(out bool complete))
 				{
 					if (complete)
-						MessageBox.Show("成功通关!!", "恭喜!");
+					{
+						DialogResult result = MessageBox.Show("你已经成功通关!! 是否继续游戏?", "恭喜!", MessageBoxButtons.YesNo);
+						if (result == DialogResult.Yes)
+							return;
+					}
 					else
 						MessageBox.Show("游戏结束!", "失败!");
 
@@ -173,12 +187,29 @@ namespace CSharp_Projects
 			AlignGridToCenter();
 		}
 
-		private void GameUI_FormClosed(object sender, FormClosedEventArgs e)
+		private void GameUI_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			if (updateBestScoreHandler is not null)
-				updateBestScoreHandler(BestScore);
+			DialogResult result = MessageBox.Show("游戏正在进行, 是否退出并保存游戏?", "提示", MessageBoxButtons.YesNoCancel);
 
-			Dispose();
+			switch (result)
+			{
+				case DialogResult.Yes:
+					if (saveGameHandler is not null)
+						saveGameHandler(Game);
+					e.Cancel = false;
+					break;
+
+				case DialogResult.No:
+					e.Cancel = false;
+					break;
+
+				case DialogResult.Cancel:
+					e.Cancel = true;
+					break;
+
+				default:
+					throw new InvalidEnumArgumentException("未知错误.");
+			}
 		}
 	}
 }

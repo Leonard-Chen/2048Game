@@ -1,14 +1,20 @@
-﻿
+﻿using MessagePack;
+
 namespace CSharp_Projects
 {
-	class Game
+	[MessagePackObject(keyAsPropertyName: true, AllowPrivate = true)]
+	public partial class Game
 	{
+		[IgnoreMember]
 		private Random Seed { get; }
 		public Grid Grid { get; private set; }
 		public int Row { get; private set; }
 		public int Column { get; private set; }
 		public int Score { get; private set; }
 		public int MaxNumber { get; private set; }
+		private bool Continue { get; set; }
+
+		public Game() : this(4, 4) { }
 
 		public Game(int row, int col)
 		{
@@ -18,7 +24,19 @@ namespace CSharp_Projects
 			Column = col;
 			Score = 0;
 			MaxNumber = 0;
+			Continue = false;
 			InitializeGrid();
+		}
+
+		public Game(Game game)
+		{
+			Seed = new();
+			Grid = new(game.Grid);
+			Row = game.Row;
+			Column = game.Column;
+			Score = game.Score;
+			MaxNumber = game.MaxNumber;
+			Continue = game.Continue;
 		}
 
 		/// <summary>
@@ -323,12 +341,15 @@ namespace CSharp_Projects
 		/// <returns></returns>
 		public bool IsOver(out bool success)
 		{
-			if (MaxNumber == 2048)
+			//若玩家合成出2048后选择继续游戏，则会跳过此语句
+			if (MaxNumber == 2048 && !Continue)
 			{
 				success = true;
+				Continue = true;
 				return true;
 			}
 
+			//棋盘未满，还未结束
 			if (Grid.Count < Row * Column)
 			{
 				success = false;
@@ -337,6 +358,7 @@ namespace CSharp_Projects
 
 			Game game = new(Row, Column);
 			Grid.CopyTo(game.Grid);
+			//试着让棋盘向各个方向滑动，若棋盘没法滑动，代表无路可走，游戏失败
 			bool isOver = !game.SwipeUp() && !game.SwipeLeft() && !game.SwipeDown() && !game.SwipeRight();
 			success = false;
 			return isOver;

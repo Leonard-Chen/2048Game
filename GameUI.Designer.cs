@@ -171,7 +171,7 @@
 			Name = "GameUI";
 			StartPosition = FormStartPosition.CenterScreen;
 			Text = "2048小游戏";
-			FormClosed += GameUI_FormClosed;
+			FormClosing += GameUI_FormClosing;
 			Load += GameUI_Load;
 			SizeChanged += GameUI_SizeChanged;
 			KeyDown += GameUI_KeyDown;

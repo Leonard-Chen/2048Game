@@ -1,6 +1,9 @@
-﻿namespace CSharp_Projects
+﻿using MessagePack;
+
+namespace CSharp_Projects
 {
-	struct Tile
+	[MessagePackObject(keyAsPropertyName: true)]
+	public partial struct Tile
 	{
 		public int Number { get; private set; }
 		public bool IsEmpty { get; private set; }

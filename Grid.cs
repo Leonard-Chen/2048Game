@@ -1,11 +1,16 @@
-﻿namespace CSharp_Projects
+﻿using MessagePack;
+
+namespace CSharp_Projects
 {
-	class Grid
+	[MessagePackObject(keyAsPropertyName: true, AllowPrivate = true)]
+	public partial class Grid
 	{
-		public int Row { get; }
-		public int Column { get; }
-		private Tile[][] Tiles { get; }
+		public int Row { get; private set; }
+		public int Column { get; private set; }
+		private Tile[][] Tiles { get; set; }
 		public int Count { get; private set; }
+
+		public Grid() : this(4, 4) { }
 
 		public Grid(int row, int col)
 		{
@@ -21,6 +26,12 @@
 			}
 		}
 
+		public Grid(Grid grid) : this(grid.Row, grid.Column)
+		{
+			grid.CopyTo(this);
+		}
+
+		[IgnoreMember]
 		public Tile this[int row, int col]
 		{
 			get
