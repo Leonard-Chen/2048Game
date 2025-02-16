@@ -26,7 +26,10 @@ namespace CSharp_Projects
 			[256] = Color.FromArgb(237, 204, 97),
 			[512] = Color.FromArgb(237, 200, 80),
 			[1024] = Color.FromArgb(237, 197, 63),
-			[2048] = Color.FromArgb(237, 193, 46)
+			[2048] = Color.FromArgb(237, 193, 46),
+			[4096] = Color.FromArgb(159, 41, 207),
+			[8192] = Color.FromArgb(93, 26, 125),
+			[16384] = Color.FromArgb(58, 16, 76)
 		};
 
 		public Action<int>? updateBestScoreHandler;
@@ -54,12 +57,24 @@ namespace CSharp_Projects
 		/// 根据数字大小调整字体大小，避免出现数字显示问题
 		/// </summary>
 		/// <param name="number">方块中的数字</param>
-		/// <returns></returns>
+		/// <returns>字号</returns>
 		private float GetFontSize(int number) => number switch
 		{
 			< 128 => 16.2F,
 			>= 128 and < 1024 => 12F,
 			>= 1024 => 9F,
+		};
+
+		/// <summary>
+		/// 根据数字获取对应的方块颜色
+		/// </summary>
+		/// <param name="number">方块中的数字</param>
+		/// <returns>方块颜色</returns>
+		private Color GetColor(int number) => number switch
+		{
+			>= 2 and <= 16384 => tileColors[number],
+			> 16384 => Color.Black,
+			_ => throw new ArgumentOutOfRangeException(nameof(number)),
 		};
 
 		/// <summary>
@@ -70,7 +85,7 @@ namespace CSharp_Projects
 		private Label RenderTile(int number)
 		{
 			Label tile = new();
-			tile.BackColor = tileColors[number];
+			tile.BackColor = GetColor(number);
 			tile.ForeColor = number < 8 ? Color.FromArgb(119, 110, 101) : Color.FromArgb(249, 246, 242);
 			tile.BorderStyle = BorderStyle.FixedSingle;
 			tile.Dock = DockStyle.Fill;
